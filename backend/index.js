@@ -1,7 +1,7 @@
-import app from "./server";
+import app from "./server.js";
 import mongodb from 'mongodb';
 import dotenv from "dotenv";
-import UsersDAO from './dao/UsersDAO'
+import UsersDAO from './dao/UsersDAO.js'
 
 dotenv.config();
 
@@ -12,9 +12,9 @@ const port = process.env.PORT || 8000;
 MongoClient.connect(
     url,
     {
-        poolSize: 50,
+        // poolSize: 50,
         wtimeout: 2500,
-        useNewUrlParse: true
+        // useNewUrlParse: true,
     }
 )
 .catch(err => {
