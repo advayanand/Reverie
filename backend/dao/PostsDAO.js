@@ -66,4 +66,20 @@ export default class PostsDAO {
             return { error: e };
         }
     }
+
+    static async insertTopLevelChildComment(post_id, comment_id) {
+        try {
+            const result = await posts.updateOne(
+                {
+                    _id: { $eq: ObjectId(post_id) }
+                },
+                {
+                    $push: { commentIds: ObjectId(comment_id) }
+                }
+            );
+        } catch (e) {
+            console.error(`Unable to delete psot in database: ${e}`);
+            return { error: e };
+        }
+    }
 }

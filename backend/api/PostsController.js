@@ -15,6 +15,7 @@ export default class PostsController {
                 stars: 0,
                 edited: false,
                 dateCreated,
+                commentIds: []
             };
 
             const result = await PostsDAO.createPost(newPost);
