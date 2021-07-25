@@ -5,6 +5,7 @@ export default class UsersController {
         console.log('received');
         try {
             console.log(req.body);
+            console.log(req.headers.origin);
             const name = req.body.name;
             const handle = req.body.handle;
             const bio = req.body.bio;
@@ -18,9 +19,9 @@ export default class UsersController {
                 createdDate
             };
 
-            const result = await UsersDAO.addUser(newUser);
+            const result = await UsersDAO.createUser(newUser);
 
-            res.json({ status: 'success' });
+            res.status(201).json({ status: 'success' });
         } catch (e) {
             console.error(`Unable to create new user: ${e}`);
             res.status(500).json({ error: e });
@@ -33,7 +34,7 @@ export default class UsersController {
             const name = req.body.name;
             const handle = req.body.handle;
             const bio = req.body.bio;
-            const _id = req.body._id;
+            const _id = req.params.id;
 
             const newUserInfo = {
                 _id,
@@ -50,5 +51,18 @@ export default class UsersController {
             res.status(500).json({ error: e });
         }
         
+    }
+
+    static async apiDeleteUser(req, res, next) {
+        try {
+            const _id = req.params.id;
+
+            const result = await UsersDAO.deleteUser(_id);
+
+            res.status(204).json({ status: 'success' });
+        } catch (e) {
+            console.error(`Unable to delete user: ${e}`);
+            res.status(500).json({ error: e });
+        }
     }
 }
