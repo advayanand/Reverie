@@ -1,4 +1,4 @@
-import PostsDAO from './PostsDAO';
+import PostsDAO from './PostsDAO.js';
 import mongodb from 'mongodb';
 const ObjectId = mongodb.ObjectId;
 
@@ -72,5 +72,55 @@ export default class CommentsDAO {
             console.error(`Unable to mark comment as deleted in database: ${e}`);
             return { error: e };
         }
+    }
+
+    static async getCommentThread(comment_id) {
+        try {
+            const cursor = await comments.find(
+                {
+                    _id: { $eq: ObjectId(comment_id) }
+                }
+            );
+
+            const parentComment = await cursor.next();
+
+            console.log(parentComment);
+            
+            if (parentComment.childrenIds.length === 0) {
+                parentComment.childrenComments = [];
+                return parentComment;
+            }
+            let childrenComments = [];
+
+            for (const commentId of parentComment.childrenIds) {
+                const thread = await CommentsDAO.getCommentThread(commentId);
+                childrenComments.push(thread);
+            }
+
+            parentComment.childrenComments = childrenComments;
+            return parentComment;
+
+        } catch (e) {
+            console.error(`Unable to get comment thread from database: ${e}`);
+            return { error: e };
+        }
+    }
+
+    static async getAllCommentThreadsOnPost(post_id) {
+        try {
+            const post = await PostsDAO.getPost(post_id);
+
+            let threads = []
+            for (const commentId of post.commentIds) {
+                const thread = await CommentsDAO.getCommentThread(commentId);
+                threads.push(thread);
+            }
+
+            return threads;
+        } catch (e) {
+            console.error(`Unable to get all comment threads: ${e}`);
+            return { error: e };
+        }
+        
     }
 }

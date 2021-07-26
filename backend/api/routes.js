@@ -1,4 +1,5 @@
 import express from 'express';
+import CommentsController from './CommentsController.js';
 import PostsController from './PostsController.js';
 import UsersController from './UsersController.js';
 
@@ -20,10 +21,21 @@ router.route('/posts/:post_id')
     .put(PostsController.apiUpdatePost)
     .delete(PostsController.apiDeletePost);
 
+router.route('/comments')
+    .post(CommentsController.apiCreateComment);
+
+router.route('/comments/:comment_id')
+    .put(CommentsController.apiUpdateComment)
+    .delete(CommentsController.apiDeleteComment);
+
 router.route('/hello').get((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.json({ text: "Hello World!" });
 });
+
+router.route('/getThread').get(CommentsController.apiGetCommentThread);
+
+router.route('/getAllThreads').get(CommentsController.apiGetAllCommentThreadsOnPost);
 
 router.route('/').get((req, res, next) => {
     res.json({ text: "Hello World!" });

@@ -14,6 +14,21 @@ export default class PostsDAO {
         }
     }
 
+    static async getPost(post_id) {
+        try {
+            const post = await posts.findOne(
+                {
+                    _id: { $eq: ObjectId(post_id) }
+                }
+            );
+
+            return post;
+        } catch (e) {
+            console.error(`Unable to find post in database: ${e}`);
+            return { error: e };
+        }
+    }
+
     static async createPost(newPost) {
         try {
             const post = {

@@ -6,14 +6,18 @@ export default class CommentsController {
             const user_id = req.body.user_id;
             const content = req.body.content;
             const isTopLevel = req.body.isTopLevel;
-            const parentId = req.body.parentId;
+            const parent_id = req.body.parent_id;
+            const post_id = req.body.post_id;
             
             const newComment = {
                 user_id,
                 content,
                 isTopLevel,
-                parent,
-                deleted: true,
+                post_id,
+                parent_id,
+                votes: 0,
+                stars: 0,
+                deleted: false,
                 childrenIds: []
             }
 
@@ -22,6 +26,7 @@ export default class CommentsController {
             res.json({ status: "success" });
         } catch (e) {
             console.error(`Unable to create comment: ${e}`);
+            console.log('here');
             res.status(500).json({ error: e });
         }
     }
@@ -62,4 +67,28 @@ export default class CommentsController {
             res.status(500).json({ error: e });
         }
     }
+
+    static async apiGetCommentThread(req, res, next) {
+        try {
+            const comment_id = req.body.comment_id;
+            const result = await CommentsDAO.getCommentThread(comment_id);
+
+            res.json(result);
+        } catch (e) {
+            console.error(`Unable to get comment thread: ${e}`);
+            res.status(500).json({ error: e });
+        }
+    }
+
+    static async apiGetAllCommentThreadsOnPost(req, res, next) {
+        try {
+            const post_id = req.body.post_id;
+            const threads = await CommentsDAO.getAllCommentThreadsOnPost(post_id);
+            res.json(threads);
+        } catch (e) {
+            console.error(`Unable to get all comment thread: ${e}`);
+            res.status(500).json({ error: e });
+        }
+    }
+
 }
