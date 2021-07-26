@@ -1,6 +1,19 @@
 import UsersDAO from '../dao/UsersDAO.js';
 
 export default class UsersController {
+
+    static async apiGetUser(req, res, next) {
+        try {
+            const user_id = req.params.user_id;
+            const user = await UsersDAO.getUser(user_id);
+
+            res.json(user);
+        } catch (e) {
+            console.error(`Unable to get user: ${e}`);
+            res.status(500).json({ error: e });
+        }
+    }
+
     static async apiCreateUser(req, res, next) {
         console.log('received');
         try {
@@ -16,6 +29,8 @@ export default class UsersController {
                 name,
                 handle,
                 bio,
+                followerCount: 0,
+                followingCount: 0,
                 createdDate
             };
 

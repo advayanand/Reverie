@@ -14,6 +14,21 @@ export default class UsersDAO {
         }
     }
 
+    static async getUser(user_id) {
+        try {
+            const result = await users.findOne(
+                {
+                    _id: { $eq: ObjectId(user_id) }
+                }
+            );
+
+            return result;
+        } catch (e) {
+            console.error(`Unable to get user from database: ${e}`);
+            return { error: e };
+        }
+    }
+
     static async createUser(newUser) {
         try {
             const result = await users.insertOne(newUser);
@@ -45,10 +60,10 @@ export default class UsersDAO {
         }
     }
 
-    static async deleteUser(_id) {
+    static async deleteUser(user_id) {
         try {
             const deleteResult = await users.deleteOne({
-                _id: { $eq: ObjectId(_id) }
+                _id: { $eq: ObjectId(user_id) }
             });
 
             return deleteResult;

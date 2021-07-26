@@ -15,6 +15,21 @@ export default class CommentsDAO {
         }
     }
 
+    static async getComment(comment_id) {
+        try {
+            const result = await comments.findOne(
+                {
+                    _id: { $eq: ObjectId(comment_id) }
+                }
+            );
+
+            return result;
+        } catch (e) {
+            console.error(`Unable to get comment from database: ${e}`);
+            return { error: e };
+        }
+    }
+
     static async createComment(newComment) {
         try {
             const comment = {

@@ -9,7 +9,7 @@ router.route('/users')
     .post(UsersController.apiCreateUser)
     
 router.route('/users/:user_id')
-    // .get(UsersController.apiGetUser)
+    .get(UsersController.apiGetUser)
     .put(UsersController.apiUpdateUser)
     .delete(UsersController.apiDeleteUser);
 
@@ -17,7 +17,7 @@ router.route('/posts')
     .post(PostsController.apiCreatePost);
 
 router.route('/posts/:post_id')
-    // .get(PostsController.apiGetPost)
+    .get(PostsController.apiGetPost)
     .put(PostsController.apiUpdatePost)
     .delete(PostsController.apiDeletePost);
 
@@ -25,6 +25,7 @@ router.route('/comments')
     .post(CommentsController.apiCreateComment);
 
 router.route('/comments/:comment_id')
+    .get(CommentsController.apiGetComment)
     .put(CommentsController.apiUpdateComment)
     .delete(CommentsController.apiDeleteComment);
 

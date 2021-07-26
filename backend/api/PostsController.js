@@ -1,6 +1,19 @@
 import PostsDAO from '../dao/PostsDAO.js';
 
 export default class PostsController {
+
+    static async apiGetPost(req, res, next) {
+        try {
+            const post_id = req.params.post_id;
+            const post = await PostsDAO.getPost(post_id);
+
+            res.json(post);
+        } catch (e) {
+            console.error(`Unable to get post: ${e}`);
+            res.status(500).json({ error: e });
+        }
+    }
+
     static async apiCreatePost(req, res, next) {
         try {
             const user_id = req.body.user_id;

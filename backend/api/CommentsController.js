@@ -1,6 +1,21 @@
 import CommentsDAO from '../dao/CommentsDAO.js'
 
 export default class CommentsController {
+
+    static async apiGetComment(req, res, next) {
+        try {
+            const comment_id = req.params.user_id;
+            const comment = await CommentsDAO.getComment(comment_id);
+
+            res.json(comment);
+            
+        } catch (e) {
+            console.error(`Unable to get comment: ${e}`);
+            res.status(500).json({ error: e });
+        }
+    }
+
+
     static async apiCreateComment(req, res, next) {
         try {
             const user_id = req.body.user_id;
