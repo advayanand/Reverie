@@ -80,4 +80,28 @@ export default class UsersController {
             res.status(500).json({ error: e });
         }
     }
+
+    static async apiAuthenticateUser(req, res, next) {
+        try {
+            // const user_id = req.body.user_id;
+            const email = req.body.email;
+            const pwd = req.body.pwd;
+
+            const authenticated_user_id = await UsersDAO.authenticateUser(
+                {
+                    email,
+                    pwd
+                }
+            );
+
+            console.log('user id: ' + authenticated_user_id);
+
+            res.json({
+                user_id: authenticated_user_id
+            });
+        } catch (e) {
+            console.error(`Unable to authenticate user: ${e}`);
+            res.status(500).json({ error: e });
+        }
+    }
 }

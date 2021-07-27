@@ -2,6 +2,7 @@ import mongodb from 'mongodb';
 const ObjectId = mongodb.ObjectId;
 
 let users;
+let pwds;
 
 export default class UsersDAO {
     static async injectDB(conn) {
@@ -9,6 +10,7 @@ export default class UsersDAO {
 
         try {
             users = await conn.db(process.env.DREAMWORLD_NS).collection("users");
+            pwds = await conn.db(process.env.DREAMWORLD_NS).collection("pwds");
         } catch (e) {
             console.error(`Could not establish a connection handle to the database: ${e}`);
         }
@@ -69,6 +71,40 @@ export default class UsersDAO {
             return deleteResult;
         } catch (e) {
             console.error(`Unable to delete user in database`);
+            return { error: e };
+        }
+    }
+
+    static async authenticateUser(user) {
+        try {
+            const userdoc = await users.findOne(
+                {
+                    email: { $eq: user.email }
+                }
+            );
+            const user_id = userdoc._id;
+
+            // console.log(user_id);
+
+            const pwddoc = await pwds.findOne(
+                {
+                    user_id: { $eq: user_id }
+                }
+            );
+            const userpwd = pwddoc.pwd;
+
+            console.log(userpwd);
+            
+            if (user.pwd !== userpwd) {
+                // handle incorrect password !!!
+                return;
+            }
+
+            console.log(user_id);
+
+            return user_id;
+        } catch (e) {
+            console.error(`Unable to authenticate user in database: ${e}`);
             return { error: e };
         }
     }
