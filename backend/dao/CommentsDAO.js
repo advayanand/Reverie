@@ -125,7 +125,9 @@ export default class CommentsDAO {
         try {
             const post = await PostsDAO.getPost(post_id);
 
-            let threads = []
+            console.log('getallcommentthreads post: ', post);
+
+            let threads = [];
             for (const commentId of post.commentIds) {
                 const thread = await CommentsDAO.getCommentThread(commentId);
                 threads.push(thread);

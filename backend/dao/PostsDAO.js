@@ -22,6 +22,8 @@ export default class PostsDAO {
                 }
             );
 
+            console.log('getpost post: ', post);
+
             return post;
         } catch (e) {
             console.error(`Unable to find post in database: ${e}`);
@@ -93,7 +95,23 @@ export default class PostsDAO {
                 }
             );
         } catch (e) {
-            console.error(`Unable to delete psot in database: ${e}`);
+            console.error(`Unable to insert top level child comment in database: ${e}`);
+            return { error: e };
+        }
+    }
+
+    static async getPostsForUser(user_id) {
+        try {
+            const cursor = posts.find();
+            const displayCursor = await cursor.limit(20);
+            const postsForUser = await displayCursor.toArray();
+            // console.log(postsForUser);
+            return {
+                postCount: postsForUser.length,
+                posts: postsForUser
+            };
+        } catch (e) {
+            console.error(`Unable to get posts for user in database: ${e}`);
             return { error: e };
         }
     }

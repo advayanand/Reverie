@@ -33,7 +33,14 @@ export default class PostsController {
 
             const result = await PostsDAO.createPost(newPost);
 
-            res.json({ status: "success" });
+            const returnedPost = {
+                _id: result.insertedId.toString(),
+                ...newPost
+            };
+
+            console.log(returnedPost);
+
+            res.json(returnedPost);
         } catch (e) {
             console.error(`Unable to create post: ${e}`);
             res.status(500).json({ error: e });
@@ -70,6 +77,20 @@ export default class PostsController {
             const result = await PostsDAO.deletePost(post_id, user_id);
 
             res.status(204).json({ status: "success" });
+
+        } catch (e) {
+            console.error(`Unable to delete post: ${e}`);
+            res.status(500).json({ error: e });
+        }
+    }
+
+    static async apiGetPostsForUser(req, res, next) {
+        try {
+            const user_id = req.body.user_id;
+
+            const posts = await PostsDAO.getPostsForUser(user_id);
+
+            res.json(posts);
 
         } catch (e) {
             console.error(`Unable to delete post: ${e}`);

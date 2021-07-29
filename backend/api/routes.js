@@ -36,9 +36,11 @@ router.route('/hello').get((req, res, next) => {
 
 router.route('/login').post(UsersController.apiAuthenticateUser);
 
-router.route('/getThread').get(CommentsController.apiGetCommentThread);
+router.route('/thread').get(CommentsController.apiGetCommentThread);
 
-router.route('/getAllThreads').get(CommentsController.apiGetAllCommentThreadsOnPost);
+router.route('/allThreads').get(CommentsController.apiGetAllCommentThreadsOnPost);
+
+router.route('/posts').get(PostsController.apiGetPostsForUser);
 
 router.route('/').get((req, res, next) => {
     res.json({ text: "Hello World!" });
