@@ -97,7 +97,8 @@ export default class CommentsController {
 
     static async apiGetAllCommentThreadsOnPost(req, res, next) {
         try {
-            const post_id = req.body.post_id;
+            const post_id = req.query.p;
+            console.log('post_id: ', post_id);
             const threads = await CommentsDAO.getAllCommentThreadsOnPost(post_id);
             res.json(threads);
         } catch (e) {

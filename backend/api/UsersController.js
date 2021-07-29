@@ -17,8 +17,6 @@ export default class UsersController {
     static async apiCreateUser(req, res, next) {
         console.log('received');
         try {
-            console.log(req.body);
-            console.log(req.headers.origin);
             const name = req.body.name;
             const handle = req.body.handle;
             const bio = req.body.bio;

@@ -98,8 +98,6 @@ export default class CommentsDAO {
             );
 
             const parentComment = await cursor.next();
-
-            console.log(parentComment);
             
             if (parentComment.childrenIds.length === 0) {
                 parentComment.childrenComments = [];
@@ -113,6 +111,7 @@ export default class CommentsDAO {
             }
 
             parentComment.childrenComments = childrenComments;
+            console.log(parentComment);
             return parentComment;
 
         } catch (e) {
@@ -132,6 +131,10 @@ export default class CommentsDAO {
                 const thread = await CommentsDAO.getCommentThread(commentId);
                 threads.push(thread);
             }
+
+            // const threads = post.commentIds.map(async commentId => {
+            //     return await CommentsDAO.getCommentThread(commentId);
+            // });
 
             return threads;
         } catch (e) {

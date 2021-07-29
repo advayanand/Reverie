@@ -38,7 +38,7 @@ export default class PostsController {
                 ...newPost
             };
 
-            console.log(returnedPost);
+            
 
             res.json(returnedPost);
         } catch (e) {
