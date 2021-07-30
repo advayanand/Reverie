@@ -97,7 +97,8 @@ export default class UsersDAO {
             
             if (user.pwd !== userpwd) {
                 // handle incorrect password !!!
-                return;
+                // returning null if incorrect password - better solution later
+                return null;
             }
 
             console.log(user_id);

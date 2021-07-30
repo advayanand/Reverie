@@ -19,15 +19,18 @@ export default class PostsController {
             const user_id = req.body.user_id;
             const content = req.body.content;
             
-            const dateCreated = new Date();
+            const posted_at = new Date();
             
             const newPost = {
                 user_id,
                 content,
                 votes: 0,
                 stars: 0,
+                deleted: false,
+                deleted_at: null,
                 edited: false,
-                dateCreated,
+                edited_at: null,
+                posted_at,
                 commentIds: []
             };
 

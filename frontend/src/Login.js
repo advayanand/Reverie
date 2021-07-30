@@ -23,6 +23,14 @@ const Login = (props) => {
             pwd: password
         });
 
+        if (token.user_id === null) {
+            setEmail('');
+            setPassword('');
+            return;
+            // TODO
+            // setInvalidLoginError(true);
+        }
+
         props.setToken(token.user_id);
     }
 

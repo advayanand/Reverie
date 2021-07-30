@@ -34,20 +34,28 @@ export default class CommentsDAO {
         try {
             const comment = {
                 ...newComment,
-                user_id: ObjectId(newComment.user_id)
+                user_id: ObjectId(newComment.user_id),
+                parent_id: ObjectId(newComment.parent_id)
             }
             const result = await comments.insertOne(comment);
-            const insertCommentResult = await PostsDAO.insertTopLevelChildComment(comment.post_id, result.insertedId);
+            if (comment.isTopLevel) {
+                const insertCommentResult = await PostsDAO.insertTopLevelChildComment(comment.post_id, result.insertedId);
+            } else {
+                console.log('here');
+                const insertCommentResult = await CommentsDAO.insertChildComment(comment.parent_id, result.insertedId);
+            }
+            
 
             return result;
         } catch (e) {
-            console.error(`Unable to insert post into database: ${e}`);
+            console.error(`Unable to insert comment in database: ${e}`);
             return { error: e };
         }
     }
 
     static async updateComment(comment) {
         try {
+            const edited_at = new Date();
             const updateResult = await comments.updateOne(
                 {
                     _id: { $eq: ObjectId(comment.comment_id) },
@@ -55,21 +63,24 @@ export default class CommentsDAO {
                 },
                 {
                     $set: {
-                        content: comment.content
+                        content: comment.content,
+                        edited: true,
+                        edited_at: edited_at
                     }
                 }
             );
 
             return updateResult;
         } catch (e) {
-            console.error(`Unable to update post in database: ${e}`);
+            console.error(`Unable to update comment in database: ${e}`);
             return { error: e };
         }
     }
 
-    // If comment is deleted, just mark it as
+    // If comment is deleted, just mark it as deleted, don't remove it from database
     static async deleteComment(comment_id, user_id) {
         try {
+            const deleted_at = new Date();
             const deleteResult = await comments.updateOne(
                 {
                     _id: { $eq: ObjectId(comment_id) },
@@ -77,7 +88,8 @@ export default class CommentsDAO {
                 },
                 {
                     $set: {
-                        deleted: true
+                        deleted: true,
+                        deleted_at: deleted_at
                     }
                 }
             );
@@ -85,6 +97,22 @@ export default class CommentsDAO {
             return deleteResult;
         } catch (e) {
             console.error(`Unable to mark comment as deleted in database: ${e}`);
+            return { error: e };
+        }
+    }
+
+    static async insertChildComment(parent_comment_id, child_comment_id) {
+        try {
+            const result = comments.updateOne(
+                {
+                    _id: { $eq: ObjectId(parent_comment_id) }
+                },
+                {
+                    $push: { childrenIds: ObjectId(child_comment_id) }
+                }
+            );
+        } catch (e) {
+            console.error(`Unable to insert child comment id in parent's children array in database: ${e}`);
             return { error: e };
         }
     }
@@ -111,7 +139,6 @@ export default class CommentsDAO {
             }
 
             parentComment.childrenComments = childrenComments;
-            console.log(parentComment);
             return parentComment;
 
         } catch (e) {
@@ -123,8 +150,6 @@ export default class CommentsDAO {
     static async getAllCommentThreadsOnPost(post_id) {
         try {
             const post = await PostsDAO.getPost(post_id);
-
-            console.log('getallcommentthreads post: ', post);
 
             let threads = [];
             for (const commentId of post.commentIds) {

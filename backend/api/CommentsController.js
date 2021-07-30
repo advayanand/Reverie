@@ -23,6 +23,8 @@ export default class CommentsController {
             const isTopLevel = req.body.isTopLevel;
             const parent_id = req.body.parent_id;
             const post_id = req.body.post_id;
+
+            const posted_at = new Date();
             
             const newComment = {
                 user_id,
@@ -33,12 +35,22 @@ export default class CommentsController {
                 votes: 0,
                 stars: 0,
                 deleted: false,
+                deleted_at: null,
+                edited: false,
+                edited_at: null,
+                posted_at,
                 childrenIds: []
-            }
+            };
+
 
             const result = await CommentsDAO.createComment(newComment);
 
-            res.json({ status: "success" });
+            const returnedComment = {
+                _id: result.insertedId.toString(),
+                ...newComment
+            };
+
+            res.json(returnedComment);
         } catch (e) {
             console.error(`Unable to create comment: ${e}`);
             console.log('here');

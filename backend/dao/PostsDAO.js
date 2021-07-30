@@ -22,8 +22,6 @@ export default class PostsDAO {
                 }
             );
 
-            console.log('getpost post: ', post);
-
             return post;
         } catch (e) {
             console.error(`Unable to find post in database: ${e}`);
