@@ -27,7 +27,8 @@ const Login = (props) => {
             setEmail('');
             setPassword('');
             return;
-            // TODO
+            
+            // TODO - show incorrect login error
             // setInvalidLoginError(true);
         }
 

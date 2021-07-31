@@ -70,9 +70,9 @@ export default class CommentsController {
                 content
             };
 
-            const result = await CommentsDAO.updateComment(newCommentInfo);
+            const updatedComment = await CommentsDAO.updateComment(newCommentInfo);
 
-            res.json({ status: "success" });
+            res.json(newCommentInfo);
 
         } catch (e) {
             console.error(`Unable to update comment: ${e}`);

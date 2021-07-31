@@ -84,7 +84,7 @@ export default class CommentsDAO {
             const deleteResult = await comments.updateOne(
                 {
                     _id: { $eq: ObjectId(comment_id) },
-                    user_id: { $eq: ObjectId(user_id) }
+                    // user_id: { $eq: ObjectId(user_id) }
                 },
                 {
                     $set: {
