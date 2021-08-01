@@ -17,22 +17,37 @@ const Login = (props) => {
         // if (!user) {
         //     // login failed
         // }
-        console.log('in handle submit');
-        const token = await loginUser({
+        // console.log('in handle submit');
+        
+        // const token = await loginUser({
+        //     email,
+        //     pwd: password
+        // });
+
+        loginUser({
             email,
             pwd: password
-        });
+        })
+        .then(token => {
+            props.setToken(token.user_id);
+        })
+        .catch(err => {
+            if (err.response.status === 401) {
+                setEmail('');
+                setPassword('');
+            }
+        })
 
-        if (token.user_id === null) {
-            setEmail('');
-            setPassword('');
-            return;
+        // if (token.user_id === null) {
+        //     setEmail('');
+        //     setPassword('');
+        //     return;
             
-            // TODO - show incorrect login error
-            // setInvalidLoginError(true);
-        }
+        //     // TODO - show incorrect login error
+        //     setInvalidLoginError(true);
+        // }
 
-        props.setToken(token.user_id);
+        // props.setToken(token.user_id);
     }
 
     return (

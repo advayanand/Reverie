@@ -15,7 +15,6 @@ export default class UsersController {
     }
 
     static async apiCreateUser(req, res, next) {
-        console.log('received');
         try {
             const name = req.body.name;
             const handle = req.body.handle;
@@ -94,9 +93,13 @@ export default class UsersController {
 
             console.log('user id: ' + authenticated_user_id);
 
-            res.json({
-                user_id: authenticated_user_id
-            });
+            if (!authenticated_user_id) {
+                res.status(401).end();
+            } else {
+                res.json({
+                    user_id: authenticated_user_id
+                });
+            }
         } catch (e) {
             console.error(`Unable to authenticate user: ${e}`);
             res.status(500).json({ error: e });

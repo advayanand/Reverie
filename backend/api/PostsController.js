@@ -24,7 +24,7 @@ export default class PostsController {
             const newPost = {
                 user_id,
                 content,
-                votes: 0,
+                score: 0,
                 stars: 0,
                 deleted: false,
                 deleted_at: null,

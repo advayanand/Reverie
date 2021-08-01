@@ -20,7 +20,7 @@ export default class CommentsController {
         try {
             const user_id = req.body.user_id;
             const content = req.body.content;
-            const isTopLevel = req.body.isTopLevel;
+            const is_top_level = req.body.is_top_level;
             const parent_id = req.body.parent_id;
             const post_id = req.body.post_id;
 
@@ -29,10 +29,10 @@ export default class CommentsController {
             const newComment = {
                 user_id,
                 content,
-                isTopLevel,
+                is_top_level,
                 post_id,
                 parent_id,
-                votes: 0,
+                score: 0,
                 stars: 0,
                 deleted: false,
                 deleted_at: null,

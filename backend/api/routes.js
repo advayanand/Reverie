@@ -2,6 +2,7 @@ import express from 'express';
 import CommentsController from './CommentsController.js';
 import PostsController from './PostsController.js';
 import UsersController from './UsersController.js';
+import VotesController from './VotesController.js';
 
 const router = express.Router();
 
@@ -41,6 +42,18 @@ router.route('/thread').get(CommentsController.apiGetCommentThread);
 router.route('/allThreads').get(CommentsController.apiGetAllCommentThreadsOnPost);
 
 router.route('/posts').get(PostsController.apiGetPostsForUser);
+
+router.route('/posts/:post_id/vote')
+    .post(VotesController.apiCreateCommentVote)
+    .put(VotesController.apiUpdateCommentVote)
+    .delete(VotesController.apiDeleteCommentVote);
+
+router.route('/comments/:comment_id/vote')
+    .post(VotesController.apiCreatePostVote)
+    .put(VotesController.apiUpdatePostVote)
+    .delete(VotesController.apiDeletePostVote);
+
+// router.route('')
 
 router.route('/').get((req, res, next) => {
     res.json({ text: "Hello World!" });

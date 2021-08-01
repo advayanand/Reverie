@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import commentService from './services/commentService';
 import postService from './services/postService';
+import './PostPage.css';
 
 
 const CommentThread = ({ comments, commentThread, setComments, post_id, user_id }) => {
@@ -30,7 +31,7 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
         const reply = {
             user_id,
             content: replyText,
-            isTopLevel: false,
+            is_top_level: false,
             post_id,
             parent_id: commentThread._id
         }
@@ -97,11 +98,16 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
             .deleteComment(commentThread._id)
             .then(data => {
                 deleteCommentThreads(comments, commentThread._id);
-            })
+            });
     }
 
     return (
         <li className='thread-container'>
+            <div className='vote-container'>
+                <button onClick={() => {}}>up</button>
+                <span className='score'>{commentThread.votes}</span>
+                <button onClick={() => {}}>down</button>
+            </div>
             {commentThread.deleted ? '<deleted>' : commentThread.content}
             <button onClick={e => setShowReplyTextBox(!showReplyTextBox)}>Reply</button>
             {showReplyTextBox && (
@@ -111,10 +117,10 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
                 <button onClick={sendReply}>Send</button>
                 </>
             )}
-            {commentThread.user_id === user_id && (
+            {commentThread.user_id === user_id && !commentThread.deleted && (
                 <>
                 <button onClick={e => setShowEditTextBox(!showEditTextBox)}>Edit</button>
-                {!commentThread.deleted && <button onClick={deleteComment}>Delete</button>}
+                <button onClick={deleteComment}>Delete</button>
                 </>
             )}
             {showEditTextBox && (
@@ -144,10 +150,30 @@ const Comments = ({ comments, setComments, post_id, user_id }) => {
     );
 }
 
-const Post = ({ post, setPost }) => {
+const Post = ({ post, setPost, addTopLevelReply, user_id }) => {
+    const [ replyText, setReplyText ] = useState('');
+    const [ showReplyTextBox, setShowReplyTextBox ] = useState(false);
     return (
         <div className='post'>
             <p>{post.content}</p>
+            <button onClick={e => setShowReplyTextBox(!showReplyTextBox)}>Reply</button>
+            {showReplyTextBox && (
+                <>
+                <input value={replyText} onChange={e => setReplyText(e.target.value)}></input>
+                <button onClick={e => {setShowReplyTextBox(false); setReplyText('');}}>Cancel</button>
+                <button onClick={e => {
+                    addTopLevelReply({
+                        user_id,
+                        content: replyText,
+                        is_top_level: true,
+                        post_id: post._id,
+                        parent_id: post._id
+                    });
+                    setShowReplyTextBox(false);
+                    setReplyText('');
+                }}>Send</button>
+                </>
+            )}
         </div>
     )
 }
@@ -160,19 +186,26 @@ export default function PostPage({ token }) {
         commentService
             .getAllThreads(post_id)
             .then(comments => {
-                console.log(comments);
                 setComments(comments);
             });
         postService
             .getPost(post_id)
             .then(post => {
-                console.log(post);
                 setPost(post);
             });
     }, []);
+    const addTopLevelReply = reply => {
+        commentService
+            .createComment(reply)
+            .then(returnedComment => {
+                returnedComment.childrenComments = [];
+                console.log(returnedComment);
+                setComments([returnedComment].concat(comments));
+            });
+    }
     return (
         <div className='post-container'>
-            <Post post={post} setPost={setPost} user_id={token}/>
+            <Post post={post} setPost={setPost} addTopLevelReply={addTopLevelReply} user_id={token}/>
             <Comments comments={comments} setComments={setComments} post_id={post_id} user_id={token}/>
         </div>
     );
