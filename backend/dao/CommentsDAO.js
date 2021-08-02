@@ -1,4 +1,5 @@
 import PostsDAO from './PostsDAO.js';
+import VotesDAO from './VotesDAO.js';
 import mongodb from 'mongodb';
 const ObjectId = mongodb.ObjectId;
 
@@ -117,7 +118,7 @@ export default class CommentsDAO {
         }
     }
 
-    static async getCommentThread(comment_id) {
+    static async getCommentThread(user_id, comment_id) {
         try {
             const cursor = await comments.find(
                 {
@@ -147,13 +148,13 @@ export default class CommentsDAO {
         }
     }
 
-    static async getAllCommentThreadsOnPost(post_id) {
+    static async getAllCommentThreadsOnPost(user_id, post_id) {
         try {
             const post = await PostsDAO.getPost(post_id);
 
             let threads = [];
             for (const commentId of post.commentIds) {
-                const thread = await CommentsDAO.getCommentThread(commentId);
+                const thread = await CommentsDAO.getCommentThread(user_id, commentId);
                 threads.push(thread);
             }
 

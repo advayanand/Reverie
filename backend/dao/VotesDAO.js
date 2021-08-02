@@ -9,11 +9,11 @@ let comment_votes;
 
 export default class VotesDAO {
     static async injectDB(conn) {
-        if (votes) return;
+        if (post_votes && comment_votes) return;
 
         try {
-            votes = await conn.db(process.env.DREAMWORLD_NS).collection("post_votes");
-            votes = await conn.db(process.env.DREAMWORLD_NS).collection("comment_votes");
+            post_votes = await conn.db(process.env.DREAMWORLD_NS).collection("post_votes");
+            comment_votes = await conn.db(process.env.DREAMWORLD_NS).collection("comment_votes");
         } catch (e) {
             console.error(`Could not establish a connection handle to the database: ${e}`);
         }

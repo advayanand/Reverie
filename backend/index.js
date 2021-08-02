@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import UsersDAO from './dao/UsersDAO.js'
 import PostsDAO from "./dao/PostsDAO.js";
 import CommentsDAO from "./dao/CommentsDAO.js";
+import VotesDAO from "./dao/VotesDAO.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ MongoClient.connect(
     await UsersDAO.injectDB(client);
     await PostsDAO.injectDB(client);
     await CommentsDAO.injectDB(client);
+    await VotesDAO.injectDB(client);
     app.listen(port, () => {
         console.log(`Listening on port ${port}`);
     });

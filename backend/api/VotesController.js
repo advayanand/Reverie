@@ -15,7 +15,7 @@ export default class VotesController {
                 comment_id,
                 vote,
                 posted_at
-            }
+            };
             const result = VotesDAO.createCommentVote(newVote);
 
             res.json(newVote);
@@ -37,7 +37,7 @@ export default class VotesController {
                 vote
             };
 
-            const updatedVote = await VotesDAO.updatedVote(newVoteInfo);
+            const updatedVote = await VotesDAO.updateCommentVote(newVoteInfo);
 
             res.json(updatedVote);
 
@@ -90,7 +90,7 @@ export default class VotesController {
                 vote,
                 posted_at
             }
-            const result = VotesDAO.createCommentVote(newVote);
+            const result = VotesDAO.createPostVote(newVote);
 
             res.json(newVote);
         } catch (e) {
@@ -111,7 +111,7 @@ export default class VotesController {
                 vote
             };
 
-            const updatedVote = await VotesDAO.updatedVote(newVoteInfo);
+            const updatedVote = await VotesDAO.updatePostVote(newVoteInfo);
 
             res.json(updatedVote);
 
@@ -133,7 +133,7 @@ export default class VotesController {
                 vote
             };
 
-            const deletedVote = await VotesDAO.deleteCommentVote(deletedVoteInfo);
+            const deletedVote = await VotesDAO.deletePostVote(deletedVoteInfo);
 
             res.json(deletedVoteInfo);
         } catch (e) {

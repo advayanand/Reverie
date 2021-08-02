@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import commentService from './services/commentService';
 import postService from './services/postService';
 import './PostPage.css';
+import voteService from './services/voteService';
 
 
 const CommentThread = ({ comments, commentThread, setComments, post_id, user_id }) => {
@@ -10,7 +11,7 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
     const [ replyText, setReplyText ] = useState('');
     const [ showEditTextBox, setShowEditTextBox ] = useState(false);
     const [ editText, setEditText ] = useState(commentThread.content);
-    
+    const [ score, setScore ] = useState(commentThread.votes);
 
     const addCommentToThreads = (comments, newComment) => {
         setComments(comments.map(commentThread => addCommentToThread(commentThread, newComment)));
@@ -101,12 +102,36 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
             });
     }
 
+    const onUpvote = e => {
+        const vote = {
+            user_id,
+            vote: 1
+        }
+        voteService
+            .createCommentVote(commentThread._id, vote)
+            .then(data => {
+                setScore(score + 1);
+            });
+    }
+
+    const onDownvote = e => {
+        const vote = {
+            user_id,
+            vote: -1
+        }
+        voteService
+            .createCommentVote(commentThread._id, vote)
+            .then(data => {
+                setScore(score - 1);
+            });
+    }
+
     return (
         <li className='thread-container'>
             <div className='vote-container'>
-                <button onClick={() => {}}>up</button>
-                <span className='score'>{commentThread.votes}</span>
-                <button onClick={() => {}}>down</button>
+                <button onClick={onUpvote}>up</button>
+                <span className='score'>{score}</span>
+                <button onClick={onDownvote}>down</button>
             </div>
             {commentThread.deleted ? '<deleted>' : commentThread.content}
             <button onClick={e => setShowReplyTextBox(!showReplyTextBox)}>Reply</button>
