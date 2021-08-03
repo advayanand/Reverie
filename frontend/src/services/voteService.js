@@ -3,7 +3,10 @@ import config from './config';
 
 const createCommentVote = (comment_id, vote) => {
     return axios
-        .post(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, vote)
+        .post(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, {
+            ...vote,
+            comment_id
+        })
         .then(response => response.data);
 }
 
@@ -15,13 +18,16 @@ const createCommentVote = (comment_id, vote) => {
 
 const updateCommentVote = (comment_id, vote) => {
     return axios
-        .put(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, vote)
+        .put(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, {
+            ...vote,
+            comment_id
+        })
         .then(response => response.data);
 }
 
-const deleteCommentVote = comment_id => {
+const deleteCommentVote = (user_id, comment_id) => {
     return axios
-        .delete(`${config.SERVER_API_URL}/comments/${comment_id}/vote`)
+        .delete(`${config.SERVER_API_URL}/comments/${comment_id}/vote?u=${user_id}`)
         .then(response => response.data);
 }
 

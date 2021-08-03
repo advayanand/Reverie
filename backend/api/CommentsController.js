@@ -53,7 +53,6 @@ export default class CommentsController {
             res.json(returnedComment);
         } catch (e) {
             console.error(`Unable to create comment: ${e}`);
-            console.log('here');
             res.status(500).json({ error: e });
         }
     }
@@ -109,14 +108,25 @@ export default class CommentsController {
 
     static async apiGetAllCommentThreadsOnPost(req, res, next) {
         try {
-            const user_id = req.body.user_id;
-            const post_id = req.query.p;
-            console.log('post_id: ', post_id);
+            const user_id = req.query.u;
+            const post_id = req.params.post_id;
+            // console.log('post_id: ', post_id);
             const threads = await CommentsDAO.getAllCommentThreadsOnPost(user_id, post_id);
             res.json(threads);
         } catch (e) {
-            console.error(`Unable to get all comment thread: ${e}`);
+            console.error(`Unable to get all comment threads: ${e}`);
             res.status(500).json({ error: e });
+        }
+    }
+
+
+
+    static async maintenance(req, res, next) {
+        try {
+            await CommentsDAO.maintenance();
+            res.end();
+        } catch (e) {
+
         }
     }
 

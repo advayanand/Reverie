@@ -26,12 +26,9 @@ const deleteComment = (comment_id) => {
 }
 
 const getAllThreads = (user_id, post_id) => {
+
     return axios
-        .get(`${config.SERVER_API_URL}/posts/${post_id}/threads`, {
-            params: {
-                user_id
-            }
-        })
+        .get(`${config.SERVER_API_URL}/posts/${post_id}/threads?u=${user_id}`)
         .then(response => response.data);
 }
 

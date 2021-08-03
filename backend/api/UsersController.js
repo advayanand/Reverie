@@ -91,8 +91,6 @@ export default class UsersController {
                 }
             );
 
-            console.log('user id: ' + authenticated_user_id);
-
             if (!authenticated_user_id) {
                 res.status(401).end();
             } else {

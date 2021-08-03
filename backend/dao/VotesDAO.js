@@ -19,22 +19,35 @@ export default class VotesDAO {
         }
     }
 
+    static async getCommentVote(user_id, comment_id) {
+        try {
+            // console.log('user id', user_id, 'comment id', comment_id);
+            const vote = await comment_votes.findOne(
+                {
+                    user_id: { $eq: ObjectId(user_id) },
+                    comment_id: { $eq: ObjectId(comment_id) }
+                }
+            );
+
+            return vote;
+        } catch (e) {
+            console.error(`Unable to get comment vote from database: ${e}`);
+            return { error: e };
+        }
+    }
+
     static async createCommentVote(vote) {
         try {
             const newVote = {
                 ...vote,
                 user_id: ObjectId(vote.user_id),
-                comment_id: ObjectId(vote.commment_id)
-            }
-            const result = comment_votes.insertOne(newVote);
-            const increaseVotesResult = comment_votes.updateOne(
-                {
-                    comment_id: { $eq: ObjectId(vote.comment_id) },
-                    user_id: { $eq: ObjectId(vote.user_id) }
-                },
-                {
-                    ...vote.vote === 1 ? { $inc: { score: 1 } } : { $inc: { score: -1 } }
-                }
+                comment_id: ObjectId(vote.comment_id)
+            };
+            console.log(newVote);
+            const result = await comment_votes.insertOne(newVote);
+            const increaseVotesResult = await CommentsDAO.changeScore(
+                vote.comment_id,
+                vote.vote === 1 ? 1 : -1
             );
 
             return result;
@@ -46,25 +59,20 @@ export default class VotesDAO {
 
     static async updateCommentVote(vote) {
         try {
-            const result = comment_votes.updateOne(
+            const result = await comment_votes.updateOne(
                 {
                     user_id: { $eq: ObjectId(vote.user_id) },
-                    comment_id: { $eq: ObjectId(comment_id) }
+                    comment_id: { $eq: ObjectId(vote.comment_id) }
                 },
                 {
                     $set: { vote: vote.vote }
                 }
             );
 
-            const updateVotesResult = comment_votes.updateOne(
-                {
-                    user_id: { $eq: ObjectId(vote.user_id) },
-                    comment_id: { $eq: ObjectId(comment_id) }
-                },
-                {
-                    ...vote.vote === 1 ? { $inc: { score: 2 } } : { $inc: { score: -2 } }
-                }
-            )
+            const updateVotesResult = await CommentsDAO.changeScore(
+                vote.comment_id,
+                vote.vote === 1 ? 2 : -2
+            );
             
             return result;
         } catch (e) {
@@ -73,25 +81,21 @@ export default class VotesDAO {
         }
     }
 
-    static async deleteCommentVote(vote) {
+    static async deleteCommentVote(user_id, comment_id) {
         try {
             const foundVote = await comment_votes.findOneAndDelete(
                 {
-                    user_id: { $eq: ObjectId(vote.user_id) },
+                    user_id: { $eq: ObjectId(user_id) },
                     comment_id: { $eq: ObjectId(comment_id) }
-                }
-            );
-            const deleteVoteResult = await comment_votes.updateOne(
-                {
-                    user_id: { $eq: ObjectId(vote.user_id) },
-                    comment_id: { $eq: ObjectId(comment_id) }
-                },
-                {
-                    ...foundVote.vote === 1 ? { $inc: { score: -1 } } : { $inc: { score: 1 } }
                 }
             );
 
-            return vote;
+            const deleteVoteResult = await CommentsDAO.changeScore(
+                comment_id,
+                foundVote.vote === 1 ? -1 : 1
+            );
+
+            return foundVote;
         } catch (e) {
             console.error(`Unable to delete comment vote in database: ${e}`);
             return { error: e };

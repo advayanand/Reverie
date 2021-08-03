@@ -8,6 +8,8 @@ export default class VotesController {
             const comment_id = req.body.comment_id;
             const vote = req.body.vote;
 
+            console.log(comment_id);
+
             const posted_at = new Date();
 
             const newVote = {
@@ -16,6 +18,8 @@ export default class VotesController {
                 vote,
                 posted_at
             };
+
+            console.log(newVote);
             const result = VotesDAO.createCommentVote(newVote);
 
             res.json(newVote);
@@ -49,19 +53,19 @@ export default class VotesController {
 
     static async apiDeleteCommentVote(req, res, next) {
         try {
-            const user_id = req.body.user_id;
+            const user_id = req.query.u;
             const comment_id = req.params.comment_id;
-            const vote = req.body.vote;
+            // const vote = req.body.vote;
 
-            const deletedVoteInfo = {
-                comment_id,
-                user_id,
-                vote
-            };
+            // const deletedVoteInfo = {
+            //     comment_id,
+            //     user_id,
+            //     vote
+            // };
 
-            const deletedVote = await VotesDAO.deleteCommentVote(deletedVoteInfo);
+            const deletedVote = await VotesDAO.deleteCommentVote(user_id, comment_id);
 
-            res.json(deletedVoteInfo);
+            res.json(deletedVote);
         } catch (e) {
             console.error(`Unable to delete comment vote: ${e}`);
             res.status(500).json({ error: e });

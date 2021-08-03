@@ -11,7 +11,8 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
     const [ replyText, setReplyText ] = useState('');
     const [ showEditTextBox, setShowEditTextBox ] = useState(false);
     const [ editText, setEditText ] = useState(commentThread.content);
-    const [ score, setScore ] = useState(commentThread.votes);
+    const [ score, setScore ] = useState(commentThread.score);
+    const [ userVote, setUserVote ] = useState(commentThread.user_vote);
 
     const addCommentToThreads = (comments, newComment) => {
         setComments(comments.map(commentThread => addCommentToThread(commentThread, newComment)));
@@ -103,35 +104,77 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
     }
 
     const onUpvote = e => {
-        const vote = {
-            user_id,
-            vote: 1
-        }
-        voteService
-            .createCommentVote(commentThread._id, vote)
-            .then(data => {
-                setScore(score + 1);
-            });
+        if (userVote === 1) {
+            voteService
+                .deleteCommentVote(user_id, commentThread._id)
+                .then(data => {
+                    setUserVote(0);
+                    setScore(score - 1);
+                });
+        } else if (userVote === 0) {
+            const vote = {
+                user_id,
+                vote: 1
+            };
+            voteService
+                .createCommentVote(commentThread._id, vote)
+                .then(data => {
+                    setUserVote(1);
+                    setScore(score + 1);
+                });
+        } else {
+            const vote = {
+                user_id,
+                vote: 1
+            };
+            voteService
+                .updateCommentVote(commentThread._id, vote)
+                .then(data => {
+                    setUserVote(1);
+                    setScore(score + 2);
+                });
+        } 
     }
 
     const onDownvote = e => {
-        const vote = {
-            user_id,
-            vote: -1
+        if (userVote === -1) {
+            voteService
+                .deleteCommentVote(user_id, commentThread._id)
+                .then(data => {
+                    setUserVote(0);
+                    setScore(score + 1);
+                });
+        } else if (userVote === 0) {
+            const vote = {
+                user_id,
+                vote: -1
+            };
+            voteService
+                .createCommentVote(commentThread._id, vote)
+                .then(data => {
+                    setUserVote(-1);
+                    setScore(score - 1);
+                });
+        } else {
+            const vote = {
+                user_id,
+                vote: -1
+            };
+            voteService
+                .updateCommentVote(commentThread._id, vote)
+                .then(data => {
+                    setUserVote(-1);
+                    setScore(score - 2);
+                });
         }
-        voteService
-            .createCommentVote(commentThread._id, vote)
-            .then(data => {
-                setScore(score - 1);
-            });
     }
 
     return (
         <li className='thread-container'>
             <div className='vote-container'>
-                <button onClick={onUpvote}>up</button>
+                <button onClick={onUpvote} style={{backgroundColor: userVote === 1 ? 'red' : 'white'}}>up</button>
                 <span className='score'>{score}</span>
-                <button onClick={onDownvote}>down</button>
+                <button onClick={onDownvote} style={{backgroundColor: userVote === -1 ? 'blue' : 'white'}}>down</button>
             </div>
             {commentThread.deleted ? '<deleted>' : commentThread.content}
             <button onClick={e => setShowReplyTextBox(!showReplyTextBox)}>Reply</button>
@@ -208,8 +251,9 @@ export default function PostPage({ token }) {
     const [ comments, setComments ] = useState([]);
     const [ post, setPost ] = useState({});
     useEffect(() => {
+        console.log(post_id);
         commentService
-            .getAllThreads(post_id)
+            .getAllThreads(token, post_id)
             .then(comments => {
                 setComments(comments);
             });

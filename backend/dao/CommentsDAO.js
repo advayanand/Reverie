@@ -42,7 +42,6 @@ export default class CommentsDAO {
             if (comment.isTopLevel) {
                 const insertCommentResult = await PostsDAO.insertTopLevelChildComment(comment.post_id, result.insertedId);
             } else {
-                console.log('here');
                 const insertCommentResult = await CommentsDAO.insertChildComment(comment.parent_id, result.insertedId);
             }
             
@@ -66,7 +65,7 @@ export default class CommentsDAO {
                     $set: {
                         content: comment.content,
                         edited: true,
-                        edited_at: edited_at
+                        edited_at
                     }
                 }
             );
@@ -120,14 +119,19 @@ export default class CommentsDAO {
 
     static async getCommentThread(user_id, comment_id) {
         try {
+            // console.log('user id', user_id);
             const cursor = await comments.find(
                 {
                     _id: { $eq: ObjectId(comment_id) }
                 }
             );
 
+            const vote = await VotesDAO.getCommentVote(user_id, comment_id);
+
             const parentComment = await cursor.next();
-            
+
+            // console.log(parentComment._id);
+
             if (parentComment.childrenIds.length === 0) {
                 parentComment.childrenComments = [];
                 return parentComment;
@@ -135,11 +139,14 @@ export default class CommentsDAO {
             let childrenComments = [];
 
             for (const commentId of parentComment.childrenIds) {
-                const thread = await CommentsDAO.getCommentThread(commentId);
+                const thread = await CommentsDAO.getCommentThread(user_id, commentId);
                 childrenComments.push(thread);
             }
 
             parentComment.childrenComments = childrenComments;
+            parentComment.user_vote = vote ? vote.vote : 0;
+
+            // console.log(parentComment);
             return parentComment;
 
         } catch (e) {
@@ -150,11 +157,12 @@ export default class CommentsDAO {
 
     static async getAllCommentThreadsOnPost(user_id, post_id) {
         try {
+            // console.log('user id', user_id);
             const post = await PostsDAO.getPost(post_id);
 
             let threads = [];
-            for (const commentId of post.commentIds) {
-                const thread = await CommentsDAO.getCommentThread(user_id, commentId);
+            for (const comment_id of post.commentIds) {
+                const thread = await CommentsDAO.getCommentThread(user_id, comment_id);
                 threads.push(thread);
             }
 
@@ -168,5 +176,33 @@ export default class CommentsDAO {
             return { error: e };
         }
         
+    }
+
+    static async changeScore(comment_id, amount) {
+        console.log('changing score of comment id ', comment_id, 'amount = ', amount);
+        try {
+            const result = await comments.updateOne(
+                {
+                    _id: { $eq: ObjectId(comment_id) },
+                    // user_id: { $eq: ObjectId(user_id) }
+                },
+                {
+                    $inc: { score: amount }
+                }
+            );
+
+            console.log(result.matchedCount, result.modifiedCount);
+        } catch (e) {
+            console.error(`somrthing went wrong`);
+        }
+    }
+
+
+    static async maintenance() {
+        try {
+            await comments.update({}, {$rename:{"votes":"score"}}, false, true);
+        } catch (e) {
+
+        }
     }
 }

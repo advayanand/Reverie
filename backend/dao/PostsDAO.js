@@ -46,6 +46,7 @@ export default class PostsDAO {
 
     static async updatePost(post) {
         try {
+            const edited_at = new Date();
             const updateResult = await posts.updateOne(
                 {
                     _id: { $eq: ObjectId(post.post_id) },
@@ -54,7 +55,8 @@ export default class PostsDAO {
                 {
                     $set: {
                         content: post.content,
-                        edited: true
+                        edited: true,
+                        edited_at
                     }
                 }
             );
@@ -68,6 +70,7 @@ export default class PostsDAO {
 
     static async deletePost(post_id, user_id) {
         try {
+            // const deleted_at = new Date();
             const deleteResult = await posts.deleteOne(
                 {
                     _id: { $eq: ObjectId(post_id) },
