@@ -25,7 +25,7 @@ export default class VotesController {
             res.json(newVote);
         } catch (e) {
             console.error(`Unable to create comment vote: ${e}`);
-            res.json({ error: e });
+            res.status(500).json({ error: e });
         }
     }
 
@@ -93,13 +93,14 @@ export default class VotesController {
                 post_id,
                 vote,
                 posted_at
-            }
+            };
+
             const result = VotesDAO.createPostVote(newVote);
 
             res.json(newVote);
         } catch (e) {
             console.error(`Unable to create post vote: ${e}`);
-            res.json({ error: e });
+            res.status(500).json({ error: e });
         }
     }
 
@@ -146,8 +147,5 @@ export default class VotesController {
         }
     }
 
-
-
-    
 
 }

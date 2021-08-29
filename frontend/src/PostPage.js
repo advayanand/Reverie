@@ -105,66 +105,90 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
 
     const onUpvote = e => {
         if (userVote === 1) {
+            setUserVote(0);
+            setScore(score - 1);
             voteService
                 .deleteCommentVote(user_id, commentThread._id)
                 .then(data => {
-                    setUserVote(0);
-                    setScore(score - 1);
+                    console.log('upvote deleted.');
+                })
+                .catch(err => {
+                    console.log('deleting upvote failed.');
                 });
         } else if (userVote === 0) {
             const vote = {
                 user_id,
                 vote: 1
             };
+            setUserVote(1);
+            setScore(score + 1);
             voteService
                 .createCommentVote(commentThread._id, vote)
                 .then(data => {
-                    setUserVote(1);
-                    setScore(score + 1);
+                    console.log('upvote recorded.');
+                })
+                .catch(err => {
+                    console.log('upvote failed.');
                 });
         } else {
             const vote = {
                 user_id,
                 vote: 1
             };
+            setUserVote(1);
+            setScore(score + 2);
             voteService
                 .updateCommentVote(commentThread._id, vote)
                 .then(data => {
-                    setUserVote(1);
-                    setScore(score + 2);
+                    console.log('upvote recorded.');
+                })
+                .catch(err => {
+                    console.log('upvote failed.');
                 });
         } 
     }
 
     const onDownvote = e => {
         if (userVote === -1) {
+            setUserVote(0);
+            setScore(score + 1);
             voteService
                 .deleteCommentVote(user_id, commentThread._id)
                 .then(data => {
-                    setUserVote(0);
-                    setScore(score + 1);
+                    console.log('downvote deleted.');
+                })
+                .catch(err => {
+                    console.log('deleting downvote failed.');
                 });
         } else if (userVote === 0) {
             const vote = {
                 user_id,
                 vote: -1
             };
+            setUserVote(-1);
+            setScore(score - 1);
             voteService
                 .createCommentVote(commentThread._id, vote)
                 .then(data => {
-                    setUserVote(-1);
-                    setScore(score - 1);
+                    console.log('downvote recorded.');
+                })
+                .catch(err => {
+                    console.log('downvote failed.');
                 });
         } else {
             const vote = {
                 user_id,
                 vote: -1
             };
+            setUserVote(-1);
+            setScore(score - 2);
             voteService
                 .updateCommentVote(commentThread._id, vote)
                 .then(data => {
-                    setUserVote(-1);
-                    setScore(score - 2);
+                    console.log('downvote recorded.');
+                })
+                .catch(err => {
+                    console.log('downvote failed.');
                 });
         }
     }
