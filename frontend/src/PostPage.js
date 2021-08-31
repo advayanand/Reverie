@@ -250,6 +250,7 @@ const Comments = ({ comments, setComments, post_id, user_id }) => {
 }
 
 const Post = ({ post, setPost, addTopLevelReply, user_id }) => {
+    // if (!post) return null;
     console.log('post rendered, post = ', post);
     
     const [ replyText, setReplyText ] = useState('');
@@ -258,8 +259,8 @@ const Post = ({ post, setPost, addTopLevelReply, user_id }) => {
 
     const [ score, setScore ] = useState(post.score);
 
-    useEffect(() => { setScore(post.score)}, [post.score] )
-    useEffect(() => { setUserVote(post.user_vote)}, [post.user_vote] )
+    // useEffect(() => { setScore(post.score)}, [post.score] )
+    // useEffect(() => { setUserVote(post.user_vote)}, [post.user_vote] )
 
     const handleTopLevelReply = e => {
         addTopLevelReply({
@@ -370,6 +371,7 @@ const Post = ({ post, setPost, addTopLevelReply, user_id }) => {
                 <span className='score'>{score}</span>
                 <button onClick={onDownvote} style={{backgroundColor: userVote === -1 ? 'blue' : 'white'}}>downvote post</button>
             </div>
+            {/* {post.hasOwnProperty('score') && <PostVotes scoreProp={post.score} userVoteProp={post.user_vote} onUpvote={onUpvote} onDownvote={onDownvote} />} */}
             <p>{post.content}</p>
             <button onClick={e => setShowReplyTextBox(!showReplyTextBox)}>Reply</button>
             {showReplyTextBox && (
@@ -383,15 +385,25 @@ const Post = ({ post, setPost, addTopLevelReply, user_id }) => {
     )
 }
 
+const PostVotes = ({scoreProp, userVoteProp, onUpvote, onDownvote}) => {
+    const [ score, setScore ] = useState(scoreProp);
+    return (
+        <div className='post-vote-container'>
+            <button onClick={onUpvote} style={{backgroundColor: userVoteProp === 1 ? 'red' : 'white'}}>upvote post</button>
+            <span className='score'>{scoreProp}</span>
+            <button onClick={onDownvote} style={{backgroundColor: userVoteProp === -1 ? 'blue' : 'white'}}>downvote post</button>
+        </div>
+    )
+}
+
 export default function PostPage({ token }) {
     const { post_id } = useParams();
     const [ comments, setComments ] = useState([]);
-    const [ post, setPost ] = useState({});
+    const [ post, setPost ] = useState(null);
     useEffect(() => {
         commentService
             .getAllThreads(token, post_id)
             .then(comments => {
-                // console.log(comments);
                 setComments(comments);
             });
         postService
@@ -411,7 +423,7 @@ export default function PostPage({ token }) {
     }
     return (
         <div className='post-container'>
-            <Post post={post} setPost={setPost} addTopLevelReply={addTopLevelReply} user_id={token}/>
+            {post && <Post post={post} setPost={setPost} addTopLevelReply={addTopLevelReply} user_id={token}/>}
             <Comments comments={comments} setComments={setComments} post_id={post_id} user_id={token}/>
         </div>
     );
