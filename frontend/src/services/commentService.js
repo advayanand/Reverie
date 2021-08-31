@@ -7,9 +7,9 @@ const createComment = comment => {
         .then(response => response.data);
 }
 
-const getComment = comment_id => {
+const getComment = (user_id, comment_id) => {
     return axios
-        .get(`${config.SERVER_API_URL}/comments/${comment_id}`)
+        .get(`${config.SERVER_API_URL}/comments/${comment_id}?user_id=${user_id}`)
         .then(response => response.data);
 }
 
@@ -26,9 +26,8 @@ const deleteComment = (comment_id) => {
 }
 
 const getAllThreads = (user_id, post_id) => {
-
     return axios
-        .get(`${config.SERVER_API_URL}/posts/${post_id}/threads?u=${user_id}`)
+        .get(`${config.SERVER_API_URL}/posts/${post_id}/threads?user_id=${user_id}`)
         .then(response => response.data);
 }
 

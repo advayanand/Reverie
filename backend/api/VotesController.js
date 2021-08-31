@@ -5,10 +5,8 @@ export default class VotesController {
     static async apiCreateCommentVote(req, res, next) {
         try {
             const user_id = req.body.user_id;
-            const comment_id = req.body.comment_id;
+            const comment_id = req.params.comment_id;
             const vote = req.body.vote;
-
-            console.log(comment_id);
 
             const posted_at = new Date();
 
@@ -19,7 +17,6 @@ export default class VotesController {
                 posted_at
             };
 
-            console.log(newVote);
             const result = VotesDAO.createCommentVote(newVote);
 
             res.json(newVote);
@@ -53,8 +50,9 @@ export default class VotesController {
 
     static async apiDeleteCommentVote(req, res, next) {
         try {
-            const user_id = req.query.u;
+            const user_id = req.query.user_id;
             const comment_id = req.params.comment_id;
+            console.log('here');
             // const vote = req.body.vote;
 
             // const deletedVoteInfo = {
@@ -83,7 +81,7 @@ export default class VotesController {
     static async apiCreatePostVote(req, res, next) {
         try {
             const user_id = req.body.user_id;
-            const post_id = req.body.post_id;
+            const post_id = req.params.post_id;
             const vote = req.body.vote;
 
             const posted_at = new Date();
@@ -119,7 +117,6 @@ export default class VotesController {
             const updatedVote = await VotesDAO.updatePostVote(newVoteInfo);
 
             res.json(updatedVote);
-
         } catch (e) {
             console.error(`Unable to update post vote: ${e}`);
             res.status(500).json({ error: e });
@@ -128,19 +125,18 @@ export default class VotesController {
 
     static async apiDeletePostVote(req, res, next) {
         try {
-            const user_id = req.body.user_id;
+            const user_id = req.query.user_id;
             const post_id = req.params.post_id;
-            const vote = req.body.vote;
 
-            const deletedVoteInfo = {
-                post_id,
-                user_id,
-                vote
-            };
+            // const deletedVoteInfo = {
+            //     post_id,
+            //     user_id,
+            //     vote
+            // };
 
-            const deletedVote = await VotesDAO.deletePostVote(deletedVoteInfo);
+            const deletedVote = await VotesDAO.deletePostVote(user_id, post_id);
 
-            res.json(deletedVoteInfo);
+            res.json(deletedVote);
         } catch (e) {
             console.error(`Unable to delete post vote: ${e}`);
             res.status(500).json({ error: e });

@@ -55,9 +55,10 @@ router.route('/comments/:comment_id/vote')
     .put(VotesController.apiUpdateCommentVote)
     .delete(VotesController.apiDeleteCommentVote);
 
-
-
-// router.route('')
+router.route('/posts/:post_id/vote')
+    .post(VotesController.apiCreatePostVote)
+    .put(VotesController.apiUpdatePostVote)
+    .delete(VotesController.apiDeletePostVote);
 
 router.route('/maintenance')
     .post(CommentsController.maintenance)

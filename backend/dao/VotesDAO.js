@@ -12,8 +12,8 @@ export default class VotesDAO {
         if (post_votes && comment_votes) return;
 
         try {
-            post_votes = await conn.db(process.env.DREAMWORLD_NS).collection("post_votes");
-            comment_votes = await conn.db(process.env.DREAMWORLD_NS).collection("comment_votes");
+            post_votes = await conn.db(process.env.REVERIE_NS).collection("post_votes");
+            comment_votes = await conn.db(process.env.REVERIE_NS).collection("comment_votes");
         } catch (e) {
             console.error(`Could not establish a connection handle to the database: ${e}`);
         }
@@ -83,6 +83,7 @@ export default class VotesDAO {
 
     static async deleteCommentVote(user_id, comment_id) {
         try {
+            console.log('deleting comment vote');
             const foundVote = await comment_votes.findOneAndDelete(
                 {
                     user_id: { $eq: ObjectId(user_id) },
@@ -90,9 +91,13 @@ export default class VotesDAO {
                 }
             );
 
+            // console.log(foundVote);
+
             const deleteVoteResult = await CommentsDAO.changeScore(
                 comment_id,
-                foundVote.vote === 1 ? -1 : 1
+                // why .value? findOneAndDelete includes some other metadata about the removed document,
+                // putting the original document under the value field
+                foundVote.value.vote === 1 ? -1 : 1
             );
 
             return foundVote;
@@ -103,8 +108,20 @@ export default class VotesDAO {
     }
 
 
+    static async getPostVote(user_id, post_id) {
+        try {
+            const vote = post_votes.findOne(
+                {
+                    post_id: { $eq: ObjectId(post_id) },
+                    user_id: { $eq: ObjectId(user_id) }
+                }
+            );
 
-
+            return vote;
+        } catch (e) {
+            console.error(`Unable to get post vote: ${e}`);
+        }
+    }
 
 
     static async createPostVote(vote) {
@@ -115,6 +132,11 @@ export default class VotesDAO {
                 post_id: ObjectId(vote.post_id)
             }
             const result = await post_votes.insertOne(newVote);
+
+            const increaseVotesResult = await PostsDAO.changeScore(
+                vote.post_id,
+                vote.vote === 1 ? 1 : -1
+            );
 
             return result;
         } catch (e) {
@@ -128,12 +150,18 @@ export default class VotesDAO {
             const result = await post_votes.updateOne(
                 {
                     user_id: { $eq: ObjectId(vote.user_id) },
-                    post_id: { $eq: ObjectId(post_id) }
+                    post_id: { $eq: ObjectId(vote.post_id) }
                 },
                 {
                     $set: { vote: vote.vote }
                 }
             );
+
+            const updateVotesResult = await PostsDAO.changeScore(
+                vote.post_id,
+                vote.vote === 1 ? 2 : -2
+            )
+
             return result;
         } catch (e) {
             console.error(`Unable to update post vote in database: ${e}`);
@@ -141,16 +169,21 @@ export default class VotesDAO {
         }
     }
 
-    static async deletePostVote(vote) {
+    static async deletePostVote(user_id, post_id) {
         try {
-            const result = await post_votes.deleteOne(
+            const foundVote = await post_votes.findOneAndDelete(
                 {
-                    user_id: { $eq: ObjectId(vote.user_id) },
+                    user_id: { $eq: ObjectId(user_id) },
                     post_id: { $eq: ObjectId(post_id) }
                 }
             );
 
-            return result;
+            const deleteVoteResult = await PostsDAO.changeScore(
+                post_id,
+                foundVote.value.vote === 1 ? -1 : 1
+            );
+
+            return foundVote;
         } catch (e) {
             console.error(`Unable to delete post vote in database: ${e}`);
             return { error: e };

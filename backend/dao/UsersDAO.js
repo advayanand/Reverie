@@ -9,8 +9,8 @@ export default class UsersDAO {
         if (users) return;
 
         try {
-            users = await conn.db(process.env.DREAMWORLD_NS).collection("users");
-            pwds = await conn.db(process.env.DREAMWORLD_NS).collection("pwds");
+            users = await conn.db(process.env.REVERIE_NS).collection("users");
+            pwds = await conn.db(process.env.REVERIE_NS).collection("pwds");
         } catch (e) {
             console.error(`Could not establish a connection handle to the database: ${e}`);
         }
@@ -82,13 +82,14 @@ export default class UsersDAO {
                     email: { $eq: user.email }
                 }
             );
+            console.log(userdoc);
             const user_id = userdoc._id;
 
             // console.log(user_id);
 
             const pwddoc = await pwds.findOne(
                 {
-                    user_id: { $eq: user_id }
+                    user_id: { $eq: ObjectId(user_id) }
                 }
             );
             const userpwd = pwddoc.pwd;

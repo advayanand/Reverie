@@ -1,4 +1,5 @@
 import mongodb from 'mongodb'
+import VotesDAO from './VotesDAO.js';
 const ObjectId = mongodb.ObjectId;
 
 let posts;
@@ -8,19 +9,27 @@ export default class PostsDAO {
         if (posts) return;
 
         try {
-            posts = await conn.db(process.env.DREAMWORLD_NS).collection("posts");
+            posts = await conn.db(process.env.REVERIE_NS).collection("posts");
         } catch (e) {
             console.error(`Could not establish a connection handle to the database: ${e}`);
         }
     }
 
-    static async getPost(post_id) {
+    static async getPost(user_id, post_id) {
         try {
             const post = await posts.findOne(
                 {
                     _id: { $eq: ObjectId(post_id) }
                 }
             );
+
+            // console.log(post);
+
+            const vote = await VotesDAO.getPostVote(user_id, post_id);
+
+            post.user_vote = vote ? vote.vote : 0;
+
+            console.log(post);
 
             return post;
         } catch (e) {
@@ -106,7 +115,7 @@ export default class PostsDAO {
             const cursor = posts.find();
             const displayCursor = await cursor.limit(20);
             const postsForUser = await displayCursor.toArray();
-            // console.log(postsForUser);
+
             return {
                 postCount: postsForUser.length,
                 posts: postsForUser
@@ -114,6 +123,25 @@ export default class PostsDAO {
         } catch (e) {
             console.error(`Unable to get posts for user in database: ${e}`);
             return { error: e };
+        }
+    }
+
+    static async changeScore(post_id, amount) {
+        console.log('changing score of post id ', post_id, 'amount = ', amount);
+        try {
+            const result = await posts.updateOne(
+                {
+                    _id: { $eq: ObjectId(post_id) },
+                    // user_id: { $eq: ObjectId(user_id) }
+                },
+                {
+                    $inc: { score: amount }
+                }
+            );
+
+            console.log(result.matchedCount, result.modifiedCount);
+        } catch (e) {
+            console.error(`somrthing went wrong: ${e}`);
         }
     }
 }

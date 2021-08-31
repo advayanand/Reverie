@@ -9,7 +9,7 @@ import VotesDAO from "./dao/VotesDAO.js";
 dotenv.config();
 
 const MongoClient = mongodb.MongoClient;
-const url = process.env.DREAMWORLD_DB_URL;
+const url = process.env.REVERIE_DB_URL;
 const port = process.env.PORT || 8000;
 
 MongoClient.connect(

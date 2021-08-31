@@ -1,5 +1,9 @@
-.vote-container {
+.comment-vote-container {
     /* display: flex;
     flex-direction: column; */
+    width: 5%;
+}
+
+.post-vote-container {
     width: 5%;
 }

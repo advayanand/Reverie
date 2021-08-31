@@ -4,8 +4,9 @@ export default class CommentsController {
 
     static async apiGetComment(req, res, next) {
         try {
-            const comment_id = req.params.user_id;
-            const comment = await CommentsDAO.getComment(comment_id);
+            const user_id = req.query.user_id;
+            const comment_id = req.params.comment_id;
+            const comment = await CommentsDAO.getComment(user_id, comment_id);
 
             res.json(comment);
             
@@ -14,7 +15,6 @@ export default class CommentsController {
             res.status(500).json({ error: e });
         }
     }
-
 
     static async apiCreateComment(req, res, next) {
         try {
@@ -108,7 +108,7 @@ export default class CommentsController {
 
     static async apiGetAllCommentThreadsOnPost(req, res, next) {
         try {
-            const user_id = req.query.u;
+            const user_id = req.query.user_id;
             const post_id = req.params.post_id;
             // console.log('post_id: ', post_id);
             const threads = await CommentsDAO.getAllCommentThreadsOnPost(user_id, post_id);

@@ -27,7 +27,7 @@ const SignUp = (props) => {
     return (
         <div className='container'>
             <div className='left'>
-                <h1>Welcome to Dreamworld!</h1>
+                <h1>Welcome to Reverie!</h1>
                 <form>
                     <input
                         placeholder='Email'

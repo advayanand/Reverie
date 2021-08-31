@@ -4,8 +4,9 @@ export default class PostsController {
 
     static async apiGetPost(req, res, next) {
         try {
+            const user_id = req.query.user_id;
             const post_id = req.params.post_id;
-            const post = await PostsDAO.getPost(post_id);
+            const post = await PostsDAO.getPost(user_id, post_id);
 
             res.json(post);
         } catch (e) {

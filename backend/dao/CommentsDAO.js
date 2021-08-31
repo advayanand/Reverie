@@ -10,21 +10,25 @@ export default class CommentsDAO {
         if (comments) return;
 
         try {
-            comments = await conn.db(process.env.DREAMWORLD_NS).collection("comments");
+            comments = await conn.db(process.env.REVERIE_NS).collection("comments");
         } catch (e) {
             console.error(`Could not establish a connection handle to the database: ${e}`);
         }
     }
 
-    static async getComment(comment_id) {
+    static async getComment(user_id, comment_id) {
         try {
-            const result = await comments.findOne(
+            const comment = await comments.findOne(
                 {
                     _id: { $eq: ObjectId(comment_id) }
                 }
             );
 
-            return result;
+            const vote = await VotesDAO.getCommentVote(user_id, comment_id);
+
+            comment.user_vote = vote ? vote.vote : 0;
+
+            return comment;
         } catch (e) {
             console.error(`Unable to get comment from database: ${e}`);
             return { error: e };
@@ -103,7 +107,7 @@ export default class CommentsDAO {
 
     static async insertChildComment(parent_comment_id, child_comment_id) {
         try {
-            const result = comments.updateOne(
+            const result = await comments.updateOne(
                 {
                     _id: { $eq: ObjectId(parent_comment_id) }
                 },
@@ -130,8 +134,6 @@ export default class CommentsDAO {
 
             const parentComment = await cursor.next();
 
-            // console.log(parentComment._id);
-
             if (parentComment.childrenIds.length === 0) {
                 parentComment.childrenComments = [];
                 return parentComment;
@@ -146,7 +148,6 @@ export default class CommentsDAO {
             parentComment.childrenComments = childrenComments;
             parentComment.user_vote = vote ? vote.vote : 0;
 
-            // console.log(parentComment);
             return parentComment;
 
         } catch (e) {
@@ -158,7 +159,7 @@ export default class CommentsDAO {
     static async getAllCommentThreadsOnPost(user_id, post_id) {
         try {
             // console.log('user id', user_id);
-            const post = await PostsDAO.getPost(post_id);
+            const post = await PostsDAO.getPost(user_id, post_id);
 
             let threads = [];
             for (const comment_id of post.commentIds) {

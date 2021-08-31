@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import commentService from './services/commentService';
 import postService from './services/postService';
-import './PostPage.css';
+import './styles/PostPage.css';
 import voteService from './services/voteService';
 
 
@@ -195,7 +195,7 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
 
     return (
         <li className='thread-container'>
-            <div className='vote-container'>
+            <div className='comment-vote-container'>
                 <button onClick={onUpvote} style={{backgroundColor: userVote === 1 ? 'red' : 'white'}}>up</button>
                 <span className='score'>{score}</span>
                 <button onClick={onDownvote} style={{backgroundColor: userVote === -1 ? 'blue' : 'white'}}>down</button>
@@ -231,11 +231,18 @@ const CommentThread = ({ comments, commentThread, setComments, post_id, user_id 
 }
 
 const Comments = ({ comments, setComments, post_id, user_id }) => {
+    console.log('comments rendered, comments = ', comments);
     return (
         <div className='comments-container'>
             <ul>
                 {comments.map(commentThread => {
-                    return <CommentThread key={commentThread._id} comments={comments} setComments={setComments} commentThread={commentThread} post_id={post_id} user_id={user_id}/>;
+                    return <CommentThread 
+                                key={commentThread._id} 
+                                comments={comments} 
+                                setComments={setComments} 
+                                commentThread={commentThread} 
+                                post_id={post_id} 
+                                user_id={user_id}/>;
                 })}
             </ul>
         </div>
@@ -243,27 +250,133 @@ const Comments = ({ comments, setComments, post_id, user_id }) => {
 }
 
 const Post = ({ post, setPost, addTopLevelReply, user_id }) => {
+    console.log('post rendered, post = ', post);
+    
     const [ replyText, setReplyText ] = useState('');
     const [ showReplyTextBox, setShowReplyTextBox ] = useState(false);
+    const [ userVote, setUserVote ] = useState(post.user_vote);
+
+    const [ score, setScore ] = useState(post.score);
+
+    useEffect(() => { setScore(post.score)}, [post.score] )
+    useEffect(() => { setUserVote(post.user_vote)}, [post.user_vote] )
+
+    const handleTopLevelReply = e => {
+        addTopLevelReply({
+            user_id,
+            content: replyText,
+            is_top_level: true,
+            post_id: post._id,
+            parent_id: post._id
+        });
+        setShowReplyTextBox(false);
+        setReplyText('');
+    };
+
+    const onUpvote = e => {
+        if (userVote === 1) {
+            setUserVote(0);
+            setScore(score - 1);
+            voteService
+                .deletePostVote(user_id, post._id)
+                .then(data => {
+                    console.log('upvote deleted.');
+                })
+                .catch(err => {
+                    console.log('deleting upvote failed.');
+                });
+        } else if (userVote === 0) {
+            const vote = {
+                user_id,
+                vote: 1
+            };
+            setUserVote(1);
+            setScore(score + 1);
+            voteService
+                .createPostVote(post._id, vote)
+                .then(data => {
+                    console.log('upvote recorded.');
+                })
+                .catch(err => {
+                    console.log('upvote failed.');
+                });
+        } else {
+            const vote = {
+                user_id,
+                vote: 1
+            };
+            setUserVote(1);
+            setScore(score + 2);
+            voteService
+                .updatePostVote(post._id, vote)
+                .then(data => {
+                    console.log('upvote recorded.');
+                })
+                .catch(err => {
+                    console.log('upvote failed.');
+                });
+        } 
+    }
+
+    const onDownvote = e => {
+        if (userVote === -1) {
+            setUserVote(0);
+            setScore(score + 1);
+            voteService
+                .deletePostVote(user_id, post._id)
+                .then(data => {
+                    console.log('downvote deleted.');
+                })
+                .catch(err => {
+                    console.log('deleting downvote failed.');
+                });
+        } else if (userVote === 0) {
+            const vote = {
+                user_id,
+                vote: -1
+            };
+            setUserVote(-1);
+            setScore(score - 1);
+            voteService
+                .createPostVote(post._id, vote)
+                .then(data => {
+                    console.log('downvote recorded.');
+                })
+                .catch(err => {
+                    console.log('downvote failed.');
+                });
+        } else {
+            const vote = {
+                user_id,
+                vote: -1
+            };
+            setUserVote(-1);
+            setScore(score - 2);
+            voteService
+                .updatePostVote(post._id, vote)
+                .then(data => {
+                    console.log('downvote recorded.');
+                })
+                .catch(err => {
+                    console.log('downvote failed.');
+                });
+        }
+    }
+
     return (
         <div className='post'>
+            <div className='post-vote-container'>
+                <button onClick={onUpvote} style={{backgroundColor: userVote === 1 ? 'red' : 'white'}}>upvote post</button>
+                <span className='score'>{score}</span>
+                <button onClick={onDownvote} style={{backgroundColor: userVote === -1 ? 'blue' : 'white'}}>downvote post</button>
+            </div>
             <p>{post.content}</p>
             <button onClick={e => setShowReplyTextBox(!showReplyTextBox)}>Reply</button>
             {showReplyTextBox && (
                 <>
                 <input value={replyText} onChange={e => setReplyText(e.target.value)}></input>
                 <button onClick={e => {setShowReplyTextBox(false); setReplyText('');}}>Cancel</button>
-                <button onClick={e => {
-                    addTopLevelReply({
-                        user_id,
-                        content: replyText,
-                        is_top_level: true,
-                        post_id: post._id,
-                        parent_id: post._id
-                    });
-                    setShowReplyTextBox(false);
-                    setReplyText('');
-                }}>Send</button>
+                <button onClick={handleTopLevelReply}>Send</button>
                 </>
             )}
         </div>
@@ -275,14 +388,14 @@ export default function PostPage({ token }) {
     const [ comments, setComments ] = useState([]);
     const [ post, setPost ] = useState({});
     useEffect(() => {
-        console.log(post_id);
         commentService
             .getAllThreads(token, post_id)
             .then(comments => {
+                // console.log(comments);
                 setComments(comments);
             });
         postService
-            .getPost(post_id)
+            .getPost(token, post_id)
             .then(post => {
                 setPost(post);
             });

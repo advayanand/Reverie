@@ -7,9 +7,9 @@ const createPost = post => {
         .then(response => response.data);
 }
 
-const getPost = post_id => {
+const getPost = (user_id, post_id) => {
     return axios
-        .get(`${config.SERVER_API_URL}/posts/${post_id}`)
+        .get(`${config.SERVER_API_URL}/posts/${post_id}?user_id=${user_id}`)
         .then(response => response.data);
 }
 

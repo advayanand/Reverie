@@ -3,10 +3,7 @@ import config from './config';
 
 const createCommentVote = (comment_id, vote) => {
     return axios
-        .post(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, {
-            ...vote,
-            comment_id
-        })
+        .post(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, vote)
         .then(response => response.data);
 }
 
@@ -18,23 +15,41 @@ const createCommentVote = (comment_id, vote) => {
 
 const updateCommentVote = (comment_id, vote) => {
     return axios
-        .put(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, {
-            ...vote,
-            comment_id
-        })
+        .put(`${config.SERVER_API_URL}/comments/${comment_id}/vote`, vote)
         .then(response => response.data);
 }
 
 const deleteCommentVote = (user_id, comment_id) => {
     return axios
-        .delete(`${config.SERVER_API_URL}/comments/${comment_id}/vote?u=${user_id}`)
+        .delete(`${config.SERVER_API_URL}/comments/${comment_id}/vote?user_id=${user_id}`)
         .then(response => response.data);
 }
 
+
+const createPostVote = (post_id, vote) => {
+    return axios
+        .post(`${config.SERVER_API_URL}/posts/${post_id}/vote`, vote)
+        .then(response => response.data);
+}
+
+const updatePostVote = (post_id, vote) => {
+    return axios
+        .put(`${config.SERVER_API_URL}/posts/${post_id}/vote`, vote)
+        .then(response => response.data);
+}
+
+const deletePostVote = (user_id, post_id) => {
+    return axios
+        .delete(`${config.SERVER_API_URL}/posts/${post_id}/vote?user_id=${user_id}`)
+        .then(response => response.data);
+}
 
 export default {
     createCommentVote,
     // getCommentVote,
     updateCommentVote,
     deleteCommentVote,
+    createPostVote,
+    updatePostVote,
+    deletePostVote
 }
